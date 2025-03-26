@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -12,11 +12,14 @@ function Login() {
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5432/login", {
-        username,
-        password,
+      const response = await axios.put("http://localhost:8080/usuarios/validateUserPassword", null, {
+        params: {
+          nome: username,
+          password: password,
+        },
       });
-      if (response.data.success) {
+      
+      if (response.data) {
         navigate("/telaPrincipal");
       } else {
         setError("Usuário ou senha inválidos");
@@ -29,7 +32,7 @@ function Login() {
   return (
     <div className="hero h-screen bg-base-200">
       <div className="hero-content w-1/2 flex-col flex-row-reverse">
-        <div className="card flex-shrink-0 w-2/3  shadow-2xl bg-base-100">
+        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-base-100">
           <div className="card-body">
             <h2 className="text-5xl font-bold">Elysium-Guichê</h2>
             <br />
