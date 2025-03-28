@@ -1,9 +1,12 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.3">
   <diagram name="Página-1" id="KBVwgaT-i-FmAO7iC0v5">
-    <mxGraphModel dx="1583" dy="1899" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2271" dy="2562" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-48" value="" style="rounded=0;whiteSpace=wrap;html=1;glass=0;fillColor=#f5f5f5;gradientColor=#b3b3b3;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1370" width="360" height="120" as="geometry" />
+        </mxCell>
         <mxCell id="9BMJ-JanfPEMnErvBYdE-17" value="" style="rounded=0;whiteSpace=wrap;html=1;glass=0;fillColor=#f5f5f5;gradientColor=#b3b3b3;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="90" y="1080" width="400" height="270" as="geometry" />
         </mxCell>
@@ -46,6 +49,9 @@
         </mxCell>
         <mxCell id="xjoWbX0M8VD2nlZDhd0g-1" value="Endpoint para verificar o acesso baseado no usuário" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=9;fillColor=#f8cecc;gradientColor=#ea6b66;strokeColor=#b85450;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
           <mxGeometry x="360" y="140" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-39" value="" style="rounded=0;whiteSpace=wrap;html=1;glass=0;fillColor=#f5f5f5;gradientColor=#b3b3b3;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="95" y="1380" width="285" height="250" as="geometry" />
         </mxCell>
         <mxCell id="xjoWbX0M8VD2nlZDhd0g-3" value="Administrador" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="160" y="240" width="80" height="30" as="geometry" />
@@ -195,10 +201,11 @@
         <mxCell id="xjoWbX0M8VD2nlZDhd0g-58" value="" style="rounded=0;whiteSpace=wrap;html=1;glass=0;fillColor=#f5f5f5;gradientColor=#b3b3b3;strokeColor=#666666;" parent="1" vertex="1">
           <mxGeometry x="-340" y="1000" width="405" height="330" as="geometry" />
         </mxCell>
-        <mxCell id="xjoWbX0M8VD2nlZDhd0g-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.001;entryY=0.086;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;gradientColor=#7ea6e0;strokeColor=#6c8ebf;" parent="1" source="xjoWbX0M8VD2nlZDhd0g-54" target="xjoWbX0M8VD2nlZDhd0g-58" edge="1">
+        <mxCell id="xjoWbX0M8VD2nlZDhd0g-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.001;entryY=0.098;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;gradientColor=#7ea6e0;strokeColor=#6c8ebf;" parent="1" source="xjoWbX0M8VD2nlZDhd0g-54" target="xjoWbX0M8VD2nlZDhd0g-58" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="380" y="1032" />
+              <mxPoint x="70" y="1032" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -272,11 +279,27 @@
         <mxCell id="9BMJ-JanfPEMnErvBYdE-11" value="Verificar fila de atendimento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="-150" y="1200" width="80" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-44" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-12" target="9BMJ-JanfPEMnErvBYdE-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="9BMJ-JanfPEMnErvBYdE-12" value="Iniciar um atendimento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="255" y="1270" width="80" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-13" target="9BMJ-JanfPEMnErvBYdE-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="1830" />
+              <mxPoint x="1560" y="1830" />
+              <mxPoint x="1560" y="-40" />
+              <mxPoint x="1030" y="-40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
         <mxCell id="9BMJ-JanfPEMnErvBYdE-13" value="Finalizar o atendimento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="280" y="1390" width="80" height="40" as="geometry" />
+          <mxGeometry x="160" y="1570" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-14" target="9BMJ-JanfPEMnErvBYdE-50">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="9BMJ-JanfPEMnErvBYdE-14" value="Alterar o status do atendimento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="374" y="1195" width="80" height="40" as="geometry" />
@@ -339,6 +362,47 @@
         </mxCell>
         <mxCell id="9BMJ-JanfPEMnErvBYdE-36" value="Tela do médico / avaliador" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="385" y="1080" width="105" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-43" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-40" target="9BMJ-JanfPEMnErvBYdE-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-40" value="Endpoint para puxar todos os dados do atendimento" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;gradientColor=#ea6b66;strokeColor=#b85450;dashed=1;dashPattern=8 8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="255" y="1390" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-41" value="Endpoint puxará os atendimentos filtrando pelo id do atendimento" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="110" y="1390" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-45" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-42" target="9BMJ-JanfPEMnErvBYdE-13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="1570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-42" value="Monta a tela com as informações do atendimento." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;gradientColor=#7ea6e0;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="245" y="1490" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-53" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-50" target="9BMJ-JanfPEMnErvBYdE-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-50" value="Endpoint para puxar todos os dados do atendimento" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;gradientColor=#ea6b66;strokeColor=#b85450;dashed=1;dashPattern=8 8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="410" y="1395" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-55" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-51" target="9BMJ-JanfPEMnErvBYdE-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-51" value="Monta a tela com as informações do atendimento para edição." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;gradientColor=#7ea6e0;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1410" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-54" value="Salvar" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="660" y="1415" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9BMJ-JanfPEMnErvBYdE-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1.001;entryY=0.178;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=12;startSize=8;endSize=8;jumpStyle=gap;" edge="1" parent="1" source="9BMJ-JanfPEMnErvBYdE-54" target="xjoWbX0M8VD2nlZDhd0g-58">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="690" y="1059" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
