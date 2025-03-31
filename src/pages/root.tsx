@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "../App";
-import Telaprincipal from "./telaprincipal";
+import Telaprincipalmedico from "./Profile/medic/index";
 import Guiche from "./Guiche";
 import Telaatendimento from "./Profile/medic/telaatendimento";
 export default function Root() {
@@ -14,7 +14,7 @@ export default function Root() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/Telaprincipal" element={<Telaprincipal />} />
+        <Route path="/Telaprincipalmedico" element={<Telaprincipalmedico />} />
         <Route path="/Telaatendimento" element={<Telaatendimento />} />
         <Route path="/Guiche" element={<Guiche />} />
       </Routes>
