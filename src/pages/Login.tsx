@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Login() {
@@ -42,6 +42,7 @@ function Login() {
     }
   };
 
+
   return (
     <div className="hero h-screen bg-base-200">
       <div className="hero-content w-1/2 flex-col flex-row-reverse">
@@ -75,9 +76,9 @@ function Login() {
               </div>
             </form>
             <div className="text-center mt-4">
-              <a href="#" className="text-sm">
+              <Link to="/helpPassword" className="text-sm">
                 Esqueceu sua senha?
-              </a>
+              </Link>
             </div>
           </div>
         </div>
