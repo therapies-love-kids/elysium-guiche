@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Guiche from "./pages/Guiche";
 import Telaatendimento from "./pages/Profile/medic/telaatendimento";
+import Help from "./pages/helpPassword";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         {/* Rota dinâmica para perfis */}
         <Route path="/:profileType/*" element={<Profile />} />
         <Route path="/Telaatendimento" element={<Telaatendimento />} />
+        <Route path="/helpPassword" element={<Help />} />
       </Routes>
     </Router>
   );
