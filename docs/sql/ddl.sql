@@ -9,7 +9,9 @@ CREATE TABLE UNIDADE_PREFIXO (
 CREATE TABLE AGENDAMENTO_SALA (
     pk SERIAL PRIMARY KEY,
     sala VARCHAR(16) UNIQUE NOT NULL,
-    descricao VARCHAR(64)
+    descricao VARCHAR(64),
+    localizacao VARCHAR(64), -- Adicionado atributo localização
+    unidade_prefixo_pk INTEGER NOT NULL REFERENCES UNIDADE_PREFIXO(pk) -- Adicionado referência a UNIDADE_PREFIXO
 );
 
 CREATE TABLE AGENDAMENTO_TIPO (
