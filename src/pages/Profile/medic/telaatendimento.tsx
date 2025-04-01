@@ -133,7 +133,7 @@ function Medico() {
 
   useEffect(() => {
     fetchWaitingAgendamentos();
-    const intervalId = setInterval(fetchWaitingAgendamentos, 5000);
+    const intervalId = setInterval(fetchWaitingAgendamentos, 15000);
     return () => clearInterval(intervalId);
   }, [selectedDate]);
 
