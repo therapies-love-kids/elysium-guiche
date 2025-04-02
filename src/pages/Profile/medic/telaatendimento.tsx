@@ -42,9 +42,11 @@ function Medico() {
       console.log("Resposta recebida:", response);
 
       if (response.status === 200) {
-        // Filtra apenas os agendamentos com status "em espera"
-        const waiting = response.data.filter((agendamento: Agendamento) => agendamento.status === "em espera");
-        console.log("Agendamentos em espera encontrados:", waiting);
+        // Filtra apenas os agendamentos com status "em espera" ou "em atendimento"
+        const waiting = response.data.filter((agendamento: Agendamento) => 
+          agendamento.status === "em espera" || agendamento.status === "em atendimento"
+        );
+        console.log("Agendamentos em espera ou em atendimento encontrados:", waiting);
         setWaitingAgendamentos(waiting);
       } else if (response.status === 204) {
         console.log("Nenhum agendamento encontrado (status 204)");
@@ -174,17 +176,34 @@ function Medico() {
                   {waitingAgendamentos.map((agendamento) => (
                     <li
                       key={agendamento.pk}
-                      className={`p-2 rounded cursor-pointer ${
+                      className={`p-2 rounded cursor-pointer flex items-center gap-2 ${
                         selectedAgendamento?.pk === agendamento.pk ? "bg-blue-200" : "bg-gray-200"
                       }`}
                       onClick={() => setSelectedAgendamento(agendamento)}
                     >
-                      {agendamento.tipo} - Sala: {agendamento.sala} - {new Date(agendamento.dataHoraSala).toLocaleTimeString()}
+                      {/* Componente de status do daisyUI */}
+                      <div className="inline-grid *:[grid-area:1/1]">
+                        <div
+                          className={`status ${
+                            agendamento.status === "em espera" ? "status-error animate-ping" : "status-warning animate-ping"
+                          }`}
+                        ></div>
+                        <div
+                          className={`status ${
+                            agendamento.status === "em espera" ? "status-error" : "status-warning"
+                          }`}
+                        ></div>
+                      </div>
+                      {/* Texto do agendamento */}
+                      <span>
+                        {agendamento.tipo} - Sala: {agendamento.sala} -{" "}
+                        {new Date(agendamento.dataHoraSala).toLocaleTimeString()}
+                      </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>Nenhum agendamento em espera para a data selecionada.</p>
+                <p>Nenhum agendamento em espera ou em atendimento para a data selecionada.</p>
               )}
             </div>
 
