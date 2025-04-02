@@ -28,6 +28,7 @@ function Medico() {
 
   const colaboradorId = 6; // ID do colaborador (pode ser dinâmico em um cenário real)
   const logoSrc = "LOVE KIDS.png";
+  const bloconotas = "memo-pencil-svgrepo-com.svg";
 
   // Busca os agendamentos para a data e colaborador selecionados
   const fetchWaitingAgendamentos = async () => {
@@ -153,7 +154,7 @@ function Medico() {
             <Link to="/" className="tooltip" data-tip="Sair">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-10 w-10"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -165,6 +166,11 @@ function Medico() {
                   d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                 />
               </svg>
+            </Link>
+          </li>
+          <li> 
+          <Link to="/anotacoes" className="tooltip" data-tip="Bloco para anotações">
+              <img src={bloconotas} alt="Logo" className="h-10 w-10"/>
             </Link>
           </li>
         </ul>
