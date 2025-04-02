@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Guiche from "./pages/Guiche";
-import Telaatendimento from "./pages/Profile/medic/telaatendimento";
+import Telaatendimento from "./pages/Profile/medic";
 import Help from "./pages/helpPassword";
 import Bloco from "./pages/Profile/everyone/bloco";
 

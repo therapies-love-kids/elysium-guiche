@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "../App";
 import Telaprincipalmedico from "./Profile/medic/index";
 import Guiche from "./Guiche";
-import Telaatendimento from "./Profile/medic/telaatendimento";
+import Telaatendimento from "./Profile/medic";
 export default function Root() {
   const App: React.FC = () => {
     return (
