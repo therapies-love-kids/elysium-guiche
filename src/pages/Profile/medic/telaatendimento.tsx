@@ -27,6 +27,7 @@ function Medico() {
   const [editForm, setEditForm] = useState({ sala: "", tipo: "", observacoes: "" });
 
   const colaboradorId = 6; // ID do colaborador (pode ser dinâmico em um cenário real)
+  const logoSrc = "LOVE KIDS.png";
 
   // Busca os agendamentos para a data e colaborador selecionados
   const fetchWaitingAgendamentos = async () => {
@@ -141,6 +142,9 @@ function Medico() {
 
   return (
     <div className="h-screen w-screen flex flex-col p-4 bg-gray-100">
+      <div className="absolute top-0 right-0 p-4">
+        <img src={logoSrc} alt="Logo" className="h-32 w-46" />
+      </div>
       {/* Menu Horizontal e Seletor de Data */}
       <div className="mt-4 flex flex-col gap-4">
         {/* Menu Horizontal */}
