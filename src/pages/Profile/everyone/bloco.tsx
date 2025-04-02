@@ -63,10 +63,16 @@ function Notes() {
     if (!selectedNote) return;
     setNotes(
       notes.map((note) =>
-        note.id === selectedNote.id ? { ...note, title: editTitle, content: editContent } : note
+        note.id === selectedNote.id
+          ? { ...note, title: editTitle, content: editContent }
+          : note
       )
     );
-    setSelectedNote({ ...selectedNote, title: editTitle, content: editContent });
+    setSelectedNote({
+      ...selectedNote,
+      title: editTitle,
+      content: editContent,
+    });
   };
 
   // Função para excluir a nota selecionada
@@ -105,15 +111,28 @@ function Notes() {
             </Link>
           </li>
           <li>
-            <Link to="/telaatendimento" className="tooltip" data-tip="Tela de Atendimento">
-              <img src={telaatendimento} alt="Tela de Atendimento" className="h-10 w-10" />
+            <Link
+              to="/telaatendimento"
+              className="tooltip"
+              data-tip="Tela de Atendimento"
+            >
+              <img
+                src={telaatendimento}
+                alt="Tela de Atendimento"
+                className="h-10 w-10"
+              />
             </Link>
           </li>
         </ul>
+        <br />
+        <div className="text-center text-lg text-red-500 font-bold">
+          Atenção Todas as notas criadas aqui só ficarão salvas até o cachê do
+          navegador ser limpo, <br /> não salve notas muito importantes ou documentos
+          aqui.
+        </div>
       </div>
-
       {/* Colunas */}
-      <div className="mt-20 flex flex-1 gap-4">
+      <div className="mt-2 flex flex-1 gap-4">
         {/* Lista de notas (esquerda) */}
         <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-4">
@@ -185,7 +204,9 @@ function Notes() {
               </div>
             </>
           ) : (
-            <p className="text-center">Selecione uma nota para editar ou crie uma nova nota.</p>
+            <p className="text-center">
+              Selecione uma nota para editar ou crie uma nova nota.
+            </p>
           )}
         </div>
       </div>
