@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom"; // Importando o Link do react-router-dom
 
 // Ajustando a interface para corresponder ao AgendamentoDTO retornado pelo backend
 interface Agendamento {
@@ -24,7 +25,6 @@ function Medico() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]); // Data atual por padrão
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({ sala: "", tipo: "", observacoes: "" });
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Estado para controlar o drawer
 
   const colaboradorId = 6; // ID do colaborador (pode ser dinâmico em um cenário real)
 
@@ -43,7 +43,7 @@ function Medico() {
 
       if (response.status === 200) {
         // Filtra apenas os agendamentos com status "em espera" ou "em atendimento"
-        const waiting = response.data.filter((agendamento: Agendamento) => 
+        const waiting = response.data.filter((agendamento: Agendamento) =>
           agendamento.status === "em espera" || agendamento.status === "em atendimento"
         );
         console.log("Agendamentos em espera ou em atendimento encontrados:", waiting);
@@ -140,197 +140,191 @@ function Medico() {
   }, [selectedDate]);
 
   return (
-    <div className="drawer">
-      <input
-        id="my-drawer"
-        type="checkbox"
-        className="drawer-toggle"
-        checked={isDrawerOpen}
-        onChange={() => setIsDrawerOpen(!isDrawerOpen)}
-      />
-      <div className="drawer-content">
-        <div className="h-screen w-screen flex flex-col p-4 bg-gray-100">
-          {/* Botão "Open drawer" e seletor de data */}
-          <div className="mb-4 flex gap-4">
-            <label htmlFor="my-drawer" className="btn btn-primary drawer-button">
-              Open drawer
-            </label>
-            <div>
-              <label htmlFor="datePicker" className="mr-2">Selecione a data:</label>
-              <input
-                type="date"
-                id="datePicker"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="input input-bordered"
-              />
-            </div>
-          </div>
+    <div className="h-screen w-screen flex flex-col p-4 bg-gray-100">
+      {/* Menu Horizontal e Seletor de Data */}
+      <div className="mt-4 flex flex-col gap-4">
+        {/* Menu Horizontal */}
+        <ul className="menu menu-horizontal bg-base-200 rounded-box">
+          <li>
+            <Link to="/" className="tooltip" data-tip="Sair">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+            </Link>
+          </li>
+        </ul>
 
-          <div className="flex flex-1 gap-4">
-            {/* Lista de pacientes (esquerda) */}
-            <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-bold mb-4">Lista de pacientes</h2>
-              {waitingAgendamentos.length > 0 ? (
-                <ul className="space-y-2">
-                  {waitingAgendamentos.map((agendamento) => (
-                    <li
-                      key={agendamento.pk}
-                      className={`p-2 rounded cursor-pointer flex items-center gap-2 ${
-                        selectedAgendamento?.pk === agendamento.pk ? "bg-blue-200" : "bg-gray-200"
+        {/* Seletor de Data */}
+        <div>
+          <label htmlFor="datePicker" className="mr-2">Selecione a data:</label>
+          <input
+            type="date"
+            id="datePicker"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="input input-bordered"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-1 gap-4">
+        {/* Lista de pacientes (esquerda) */}
+        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Lista de pacientes</h2>
+          {waitingAgendamentos.length > 0 ? (
+            <ul className="space-y-2">
+              {waitingAgendamentos.map((agendamento) => (
+                <li
+                  key={agendamento.pk}
+                  className={`p-2 rounded cursor-pointer flex items-center gap-2 ${
+                    selectedAgendamento?.pk === agendamento.pk ? "bg-blue-200" : "bg-gray-200"
+                  }`}
+                  onClick={() => setSelectedAgendamento(agendamento)}
+                >
+                  {/* Componente de status do daisyUI */}
+                  <div className="inline-grid *:[grid-area:1/1]">
+                    <div
+                      className={`status ${
+                        agendamento.status === "em espera" ? "status-error animate-ping" : "status-warning animate-ping"
                       }`}
-                      onClick={() => setSelectedAgendamento(agendamento)}
-                    >
-                      {/* Componente de status do daisyUI */}
-                      <div className="inline-grid *:[grid-area:1/1]">
-                        <div
-                          className={`status ${
-                            agendamento.status === "em espera" ? "status-error animate-ping" : "status-warning animate-ping"
-                          }`}
-                        ></div>
-                        <div
-                          className={`status ${
-                            agendamento.status === "em espera" ? "status-error" : "status-warning"
-                          }`}
-                        ></div>
-                      </div>
-                      {/* Texto do agendamento */}
-                      <span>
-                        {agendamento.tipo} - Sala: {agendamento.sala} -{" "}
-                        {new Date(agendamento.dataHoraSala).toLocaleTimeString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Nenhum agendamento em espera ou em atendimento para a data selecionada.</p>
-              )}
-            </div>
+                    ></div>
+                    <div
+                      className={`status ${
+                        agendamento.status === "em espera" ? "status-error" : "status-warning"
+                      }`}
+                    ></div>
+                  </div>
+                  {/* Texto do agendamento */}
+                  <span>
+                    {agendamento.tipo} - Sala: {agendamento.sala} -{" "}
+                    {new Date(agendamento.dataHoraSala).toLocaleTimeString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhum agendamento em espera ou em atendimento para a data selecionada.</p>
+          )}
+        </div>
 
-            {/* Detalhes do agendamento (direita) */}
-            <div className="w-2/3 bg-white p-4 rounded-lg shadow-md">
-              {selectedAgendamento ? (
-                <>
-                  <h2 className="text-xl font-bold mb-4">Dados do paciente e botão iniciar atendimento</h2>
-                  <div className="space-y-2">
-                    <p><strong>ID:</strong> {selectedAgendamento.pk}</p>
-                    <p><strong>Tipo:</strong> {selectedAgendamento.tipo}</p>
-                    <p><strong>Sala:</strong> {selectedAgendamento.sala}</p>
-                    <p><strong>Data/Hora:</strong> {new Date(selectedAgendamento.dataHoraSala).toLocaleString()}</p>
-                    <p><strong>Especialista ID:</strong> {selectedAgendamento.especialistaColaboradorId || "N/A"}</p>
-                    <p><strong>Paciente ID:</strong> {selectedAgendamento.pacienteId || "N/A"}</p>
-                    <p><strong>Recepcionista ID:</strong> {selectedAgendamento.recepcionistaColaboradorId || "N/A"}</p>
-                    <p><strong>Responsável ID:</strong> {selectedAgendamento.responsavelId || "N/A"}</p>
-                    <p><strong>Unidade Prefixo:</strong> {selectedAgendamento.unidadePrefixo || "N/A"}</p>
-                    <p><strong>Data/Hora Criação:</strong> {selectedAgendamento.dataHoraCriacao ? new Date(selectedAgendamento.dataHoraCriacao).toLocaleString() : "N/A"}</p>
-                    <p><strong>Status:</strong> {selectedAgendamento.status}</p>
-                    <p><strong>Observações:</strong> {selectedAgendamento.observacoes || "N/A"}</p>
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    {selectedAgendamento.status === "em espera" ? (
-                      <>
-                        <button
-                          className="btn btn-success"
-                          onClick={() => updateAgendamentoStatus(selectedAgendamento.pk, "em atendimento")}
-                        >
-                          Iniciar
-                        </button>
-                        <button
-                          className="btn btn-warning"
-                          onClick={() => openEditModal(selectedAgendamento)}
-                        >
-                          Editar
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => updateAgendamentoStatus(selectedAgendamento.pk, "finalizado")}
-                      >
-                        Terminar Consulta
-                      </button>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <p className="text-center">Selecione um agendamento para ver os detalhes.</p>
-              )}
-            </div>
-          </div>
-
-          {/* Modal de Edição */}
-          {isModalOpen && selectedAgendamento && (
-            <div className="modal modal-open">
-              <div className="modal-box">
-                <h3 className="font-bold text-lg">Editar Agendamento</h3>
-                <div className="py-4">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Sala</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.sala}
-                      onChange={(e) => setEditForm({ ...editForm, sala: e.target.value })}
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Tipo</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.tipo}
-                      onChange={(e) => setEditForm({ ...editForm, tipo: e.target.value })}
-                      className="input input-bordered"
-                    />
-                  </div>
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Observações</span>
-                    </label>
-                    <textarea
-                      value={editForm.observacoes}
-                      onChange={(e) => setEditForm({ ...editForm, observacoes: e.target.value })}
-                      className="textarea textarea-bordered"
-                    />
-                  </div>
-                </div>
-                <div className="modal-action">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => updateAgendamentoDetails(selectedAgendamento.pk)}
-                  >
-                    Salvar
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    Cancelar
-                  </button>
-                </div>
+        {/* Detalhes do agendamento (direita) */}
+        <div className="w-2/3 bg-white p-4 rounded-lg shadow-md">
+          {selectedAgendamento ? (
+            <>
+              <h2 className="text-xl font-bold mb-4">Dados do paciente e botão iniciar atendimento</h2>
+              <div className="space-y-2">
+                <p><strong>ID:</strong> {selectedAgendamento.pk}</p>
+                <p><strong>Tipo:</strong> {selectedAgendamento.tipo}</p>
+                <p><strong>Sala:</strong> {selectedAgendamento.sala}</p>
+                <p><strong>Data/Hora:</strong> {new Date(selectedAgendamento.dataHoraSala).toLocaleString()}</p>
+                <p><strong>Especialista ID:</strong> {selectedAgendamento.especialistaColaboradorId || "N/A"}</p>
+                <p><strong>Paciente ID:</strong> {selectedAgendamento.pacienteId || "N/A"}</p>
+                <p><strong>Recepcionista ID:</strong> {selectedAgendamento.recepcionistaColaboradorId || "N/A"}</p>
+                <p><strong>Responsável ID:</strong> {selectedAgendamento.responsavelId || "N/A"}</p>
+                <p><strong>Unidade Prefixo:</strong> {selectedAgendamento.unidadePrefixo || "N/A"}</p>
+                <p><strong>Data/Hora Criação:</strong> {selectedAgendamento.dataHoraCriacao ? new Date(selectedAgendamento.dataHoraCriacao).toLocaleString() : "N/A"}</p>
+                <p><strong>Status:</strong> {selectedAgendamento.status}</p>
+                <p><strong>Observações:</strong> {selectedAgendamento.observacoes || "N/A"}</p>
               </div>
-            </div>
+              <div className="mt-4 flex gap-2">
+                {selectedAgendamento.status === "em espera" ? (
+                  <>
+                    <button
+                      className="btn btn-success"
+                      onClick={() => updateAgendamentoStatus(selectedAgendamento.pk, "em atendimento")}
+                    >
+                      Iniciar
+                    </button>
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => openEditModal(selectedAgendamento)}
+                    >
+                      Editar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => updateAgendamentoStatus(selectedAgendamento.pk, "finalizado")}
+                  >
+                    Terminar Consulta
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <p className="text-center">Selecione um agendamento para ver os detalhes.</p>
           )}
         </div>
       </div>
-      {/* Drawer Lateral */}
-      <div className="drawer-side">
-        <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-100 text-base-content">
-          <li>
-            <a>Item 1</a>
-          </li>
-          <li>
-            <a>Item 2</a>
-          </li>
-          <li>
-            <a>Item 3</a>
-          </li>
-        </ul>
-      </div>
+
+      {/* Modal de Edição */}
+      {isModalOpen && selectedAgendamento && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Editar Agendamento</h3>
+            <div className="py-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Sala</span>
+                </label>
+                <input
+                  type="text"
+                  value={editForm.sala}
+                  onChange={(e) => setEditForm({ ...editForm, sala: e.target.value })}
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Tipo</span>
+                </label>
+                <input
+                  type="text"
+                  value={editForm.tipo}
+                  onChange={(e) => setEditForm({ ...editForm, tipo: e.target.value })}
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Observações</span>
+                </label>
+                <textarea
+                  value={editForm.observacoes}
+                  onChange={(e) => setEditForm({ ...editForm, observacoes: e.target.value })}
+                  className="textarea textarea-bordered"
+                />
+              </div>
+            </div>
+            <div className="modal-action">
+              <button
+                className="btn btn-primary"
+                onClick={() => updateAgendamentoDetails(selectedAgendamento.pk)}
+              >
+                Salvar
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
