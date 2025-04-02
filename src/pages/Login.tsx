@@ -7,6 +7,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [profileRoute, setProfileRoute] = useState("");
+  const guiche = "queue-svgrepo-com.svg";
 
   const navigate = useNavigate();
 
@@ -46,8 +47,8 @@ function Login() {
   return (
     <div className="hero h-screen bg-base-200">
       <div className="hero-content w-1/2 flex-col flex-row-reverse">
-        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-base-100">
-          <div className="card-body">
+        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-base-100 hero-content">
+          <div className="card-body flex flex-col">
             <h2 className="text-5xl font-bold">Elysium-Guichê</h2>
             <br />
             {error && <p className="text-red-500">{error}</p>}
@@ -62,7 +63,7 @@ function Login() {
                   onBlur={handleUsernameBlur}
                 />
               </label>
-              <label className="input input-bordered flex items-center gap-2">
+              <label className="input input-bordered flex items-center gap-2 mt-1">
                 <input 
                   type="password" 
                   className="grow" 
@@ -71,7 +72,7 @@ function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </label>
-              <div className="form-control mt-6">
+              <div className="form-control mt-6 flex justify-center">
                 <button type="submit" className="btn btn-primary">Entrar</button>
               </div>
             </form>
@@ -82,20 +83,9 @@ function Login() {
             </div>
           </div>
         </div>
-        <div className="fixed bottom-0 right-0 mb-4 mr-4">
-          <button onClick={() => navigate("/Guiche")} className="btn btn-primary btn-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                clipRule="evenodd"
-              />
-            </svg>
+        <div className="fixed bottom-0 right-0 mb-6 mr-6">
+          <button onClick={() => navigate("/Guiche")} className="btn btn-primary  btn-circle btn-xl">
+            <img className="w-8 h-10" src={guiche} alt="Guiche" />
           </button>
         </div>
       </div>
