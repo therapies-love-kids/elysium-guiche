@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import Guiche from "./pages/Guiche";
 import Telaatendimento from "./pages/Profile/medic/telaatendimento";
 import Help from "./pages/helpPassword";
+import Bloco from "./pages/Profile/everyone/bloco";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/:profileType/*" element={<Profile />} />
         <Route path="/Telaatendimento" element={<Telaatendimento />} />
         <Route path="/helpPassword" element={<Help />} />
+        <Route path="/bloco" element={<Bloco />} />
       </Routes>
     </Router>
   );

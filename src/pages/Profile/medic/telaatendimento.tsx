@@ -169,7 +169,7 @@ function Medico() {
             </Link>
           </li>
           <li> 
-          <Link to="/anotacoes" className="tooltip" data-tip="Bloco para anotações">
+          <Link to="/bloco" className="tooltip" data-tip="Bloco para anotações">
               <img src={bloconotas} alt="Logo" className="h-10 w-10"/>
             </Link>
           </li>
