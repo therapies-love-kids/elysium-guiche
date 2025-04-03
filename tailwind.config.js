@@ -2,7 +2,11 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        KampungOrange: ["KampungOrange", "sans-serif"], // Define the font family with a fallback
+      },
+    },
   },
   plugins: [
     require('daisyui'),
@@ -32,4 +36,3 @@ export default {
     ],
   },
 };
-

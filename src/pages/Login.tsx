@@ -17,14 +17,14 @@ function Login() {
     try {
       const response = await axios.get(`http://localhost:8080/usuarios/getProfileByUserName/${username}`);
       if (response.data) {
-        setProfileRoute(response.data.toLowerCase()); // Ex: "admin", "user", etc.
+        setProfileRoute(response.data.toLowerCase());
       }
     } catch (err: any) {
       console.error("Erro ao buscar perfil:", err.response?.data || err.message);
     }
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const response = await axios.put("http://localhost:8080/usuarios/validateUserPassword", null, {
@@ -33,9 +33,9 @@ function Login() {
           password: password,
         },
       });
-      
+
       if (response.data) {
-        navigate(`/${profileRoute}`); // Navega para /admin, /user, etc.
+        navigate(`/${profileRoute}`);
       } else {
         setError("Usuário ou senha inválidos");
       }
@@ -44,37 +44,45 @@ function Login() {
     }
   };
 
-
   return (
-    <div className="hero h-screen bg-base-200 " style={{ backgroundImage: `url(${backgd})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}>
-      <div className="hero-content w-1/2 flex-col flex-row-reverse ">
-        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-white bg-opacity-65 hero-content ">
-          <div className="card-body flex flex-col ">
-            <h2 className="text-5xl font-serif">Equilibrium</h2>
+    <div
+      className="hero h-screen bg-base-200"
+      style={{
+        backgroundImage: `url(${backgd})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="hero-content w-1/2 flex-col flex-row-reverse">
+        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-white bg-opacity-65 hero-content">
+          <div className="card-body flex flex-col">
+            <h2 className="text-7xl font-KampungOrange">Equilibrium</h2>
             <br />
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit} className="form-control gap-2">
               <label className="input input-bordered flex items-center gap-2">
-                <input 
-                  type="text" 
-                  className="grow" 
-                  placeholder="Usuário" 
-                  value={username} 
+                <input
+                  type="text"
+                  className="grow"
+                  placeholder="Usuário"
+                  value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onBlur={handleUsernameBlur}
                 />
               </label>
               <label className="input input-bordered flex items-center gap-2 mt-1">
-                <input 
-                  type="password" 
-                  className="grow" 
-                  placeholder="Senha" 
-                  value={password} 
+                <input
+                  type="password"
+                  className="grow"
+                  placeholder="Senha"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </label>
               <div className="form-control mt-6 flex justify-center">
-                <button type="submit" className="btn btn-primary">Entrar</button>
+                <button type="submit" className="btn btn-primary">
+                  Entrar
+                </button>
               </div>
             </form>
             <div className="text-center mt-4">
@@ -85,7 +93,7 @@ function Login() {
           </div>
         </div>
         <div className="fixed bottom-0 right-0 mb-6 mr-6">
-          <button onClick={() => navigate("/Guiche")} className="btn btn-primary  btn-circle btn-xl">
+          <button onClick={() => navigate("/Guiche")} className="btn btn-primary btn-circle btn-xl">
             <img className="w-8 h-10 filter invert" src={guiche} alt="Guiche" />
           </button>
         </div>
