@@ -142,7 +142,7 @@ function Medic() {
   }, [selectedDate]);
 
   return (
-    <div className="h-screen w-screen flex flex-col p-4 bg-gray-100">
+    <div className="h-screen w-screen flex flex-col p-4 bg-blue-100">
       <div className="absolute top-0 right-0 p-4">
         <img src={logoSrc} alt="Logo" className="h-32 w-46" />
       </div>
@@ -254,7 +254,7 @@ function Medic() {
                       className="btn btn-success"
                       onClick={() => updateAgendamentoStatus(selectedAgendamento.pk, "em atendimento")}
                     >
-                      Iniciar
+                      Chamar Paciente
                     </button>
                     <button
                       className="btn btn-warning"
