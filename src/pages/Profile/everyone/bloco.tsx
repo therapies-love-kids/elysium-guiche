@@ -83,7 +83,7 @@ function Notes() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col p-4 bg-gray-100">
+    <div className="h-screen w-screen flex flex-col p-4 bg-blue-100">
       {/* Logo no canto superior direito */}
       <div className="absolute top-0 right-0 p-4">
         <img src={logoSrc} alt="Logo" className="h-32 w-46" />
