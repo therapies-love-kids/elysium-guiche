@@ -6,6 +6,7 @@ import Guiche from "./pages/Guiche";
 import Telaatendimento from "./pages/Profile/medic";
 import Help from "./pages/helpPassword";
 import Bloco from "./pages/Profile/everyone/bloco";
+import Recepcionist from "./pages/Profile/receptionist";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/Telaatendimento" element={<Telaatendimento />} />
         <Route path="/helpPassword" element={<Help />} />
         <Route path="/bloco" element={<Bloco />} />
+        <Route path="/recepcionist" element={<Recepcionist />} />
       </Routes>
     </Router>
   );
