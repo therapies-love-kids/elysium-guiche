@@ -8,6 +8,7 @@ function Login() {
   const [error, setError] = useState("");
   const [profileRoute, setProfileRoute] = useState("");
   const guiche = "queue-svgrepo-com.svg";
+  const backgd = "LKBG.png";
 
   const navigate = useNavigate();
 
@@ -45,11 +46,11 @@ function Login() {
 
 
   return (
-    <div className="hero h-screen bg-base-200">
-      <div className="hero-content w-1/2 flex-col flex-row-reverse">
-        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-base-100 hero-content">
-          <div className="card-body flex flex-col">
-            <h2 className="text-5xl font-bold">Elysium-Guichê</h2>
+    <div className="hero h-screen bg-base-200 " style={{ backgroundImage: `url(${backgd})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}>
+      <div className="hero-content w-1/2 flex-col flex-row-reverse ">
+        <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-white bg-opacity-65 hero-content ">
+          <div className="card-body flex flex-col ">
+            <h2 className="text-5xl font-serif">Equilibrium</h2>
             <br />
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit} className="form-control gap-2">
@@ -57,7 +58,7 @@ function Login() {
                 <input 
                   type="text" 
                   className="grow" 
-                  placeholder="Username" 
+                  placeholder="Usuário" 
                   value={username} 
                   onChange={(e) => setUsername(e.target.value)}
                   onBlur={handleUsernameBlur}
@@ -67,7 +68,7 @@ function Login() {
                 <input 
                   type="password" 
                   className="grow" 
-                  placeholder="Password" 
+                  placeholder="Senha" 
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -85,7 +86,7 @@ function Login() {
         </div>
         <div className="fixed bottom-0 right-0 mb-6 mr-6">
           <button onClick={() => navigate("/Guiche")} className="btn btn-primary  btn-circle btn-xl">
-            <img className="w-8 h-10" src={guiche} alt="Guiche" />
+            <img className="w-8 h-10 filter invert" src={guiche} alt="Guiche" />
           </button>
         </div>
       </div>
