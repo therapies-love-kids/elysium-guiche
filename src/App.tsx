@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Guiche from "./pages/Guiche";
@@ -10,9 +10,11 @@ import Recepcionist from "./pages/Profile/recepcionist";
 import Addconvenio from "./pages/Profile/recepcionist/addconvenio";
 import Addmedic from "./pages/Profile/recepcionist/addmedic";
 import Addpatient from "./pages/Profile/recepcionist/addpatient";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <Routes>
         {/* Rota para a página de login */}
@@ -30,6 +32,8 @@ function App() {
         <Route path="/addpatient" element={<Addpatient />} />
       </Routes>
     </Router>
+
+    </AuthProvider>
   );
 }
 

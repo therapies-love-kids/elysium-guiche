@@ -1,45 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [profileRoute, setProfileRoute] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const guiche = "queue-svgrepo-com.svg";
   const backgd = "LKBG.png";
 
-  const navigate = useNavigate();
-
-  const handleUsernameBlur = async () => {
-    if (!username) return;
-    try {
-      const response = await axios.get(`http://localhost:8080/usuarios/getProfileByUserName/${username}`);
-      if (response.data) {
-        setProfileRoute(response.data.toLowerCase());
-      }
-    } catch (err: any) {
-      console.error("Erro ao buscar perfil:", err.response?.data || err.message);
-    }
-  };
-
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.put("http://localhost:8080/usuarios/validateUserPassword", null, {
-        params: {
-          nome: username,
-          password: password,
-        },
+      const response = await axios.post("http://localhost:8080/usuarios/validateUserPassword", null, {
+        params: { nome: username, senha: password },
       });
 
-      if (response.data) {
-        navigate(`/${profileRoute}`);
+      if (response.data.perfil) {
+        login(username, response.data.perfil);
+        navigate(`/${response.data.perfil.toLowerCase()}`);
       } else {
         setError("Usuário ou senha inválidos");
       }
     } catch (err) {
+      console.error("Erro ao fazer login:", err);
       setError("Erro ao conectar com o servidor");
     }
   };
@@ -56,7 +43,7 @@ function Login() {
       <div className="hero-content w-1/2 flex-col flex-row-reverse">
         <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-white bg-opacity-65 hero-content">
           <div className="card-body flex flex-col">
-            <h2 className="text-7xl  font-KampungOrange">Equilibrium</h2>
+            <h2 className="text-7xl font-KampungOrange">Equilibrium</h2>
             <br />
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit} className="form-control gap-2">
@@ -67,7 +54,6 @@ function Login() {
                   placeholder="Usuário"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  onBlur={handleUsernameBlur}
                 />
               </label>
               <label className="input input-bordered flex items-center gap-2 mt-1">

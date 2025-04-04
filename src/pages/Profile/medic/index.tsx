@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom"; // Importando o Link do react-router-dom
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 // Ajustando a interface para corresponder ao AgendamentoDTO retornado pelo backend
 interface Agendamento {
@@ -20,15 +21,89 @@ interface Agendamento {
 }
 
 function Medic() {
+  const { perfil, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
   const [waitingAgendamentos, setWaitingAgendamentos] = useState<Agendamento[]>([]);
   const [selectedAgendamento, setSelectedAgendamento] = useState<Agendamento | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]); // Data atual por padrão
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({ sala: "", tipo: "", observacoes: "" });
 
-  const colaboradorId = 6; // ID do colaborador (pode ser dinâmico em um cenário real)
+  const colaboradorId = 6;
   const logoSrc = "LOVE KIDS.png";
   const bloconotas = "memo-pencil-svgrepo-com.svg";
+
+  // Determina o perfil da página com base no nome da pasta
+  const pageProfile = "medic"; // Nome da pasta onde a página está localizada
+
+  // Função para verificar se o usuário tem acesso à página
+  const checkAccess = async () => {
+    const nome = localStorage.getItem("nome");
+    if (!nome || !perfil) {
+      setIsAuthorized(false);
+      return;
+    }
+
+    // Verifica se a página já foi autorizada anteriormente (para evitar redirecionamento ao recarregar)
+    const authorizationKey = `authorized_${window.location.pathname}`;
+    const isPreviouslyAuthorized = localStorage.getItem(authorizationKey) === "true";
+    if (isPreviouslyAuthorized) {
+      setIsAuthorized(true);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8080/usuarios/checkAccess", null, {
+        params: { nome, pageProfile },
+      });
+      const hasAccess = response.data.hasAccess;
+      setIsAuthorized(hasAccess);
+
+      if (hasAccess) {
+        // Armazena a autorização no localStorage para permitir recarregamento
+        localStorage.setItem(authorizationKey, "true");
+      } else {
+        localStorage.removeItem(authorizationKey);
+      }
+    } catch (err) {
+      console.error("Erro ao verificar acesso:", err);
+      setIsAuthorized(false);
+      localStorage.removeItem(authorizationKey);
+    }
+  };
+
+  // Função para definir o usuário como online antes de navegar para outra página
+  const setUserOnlineAndNavigate = async (path: string) => {
+    const nome = localStorage.getItem("nome");
+    if (nome) {
+      try {
+        await axios.post("http://localhost:8080/usuarios/setUserOnline", null, {
+          params: { nome },
+        });
+        navigate(path);
+      } catch (err) {
+        console.error("Erro ao definir usuário como online:", err);
+        navigate(path); // Navega mesmo se houver erro, mas isso pode ser ajustado conforme necessário
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
+  // Verifica o acesso ao carregar a página
+  useEffect(() => {
+    checkAccess();
+  }, []);
+
+  // Redireciona para a página de login se não estiver autorizado
+  useEffect(() => {
+    if (isAuthorized === false) {
+      logout();
+      navigate("/");
+    }
+  }, [isAuthorized, navigate, logout]);
 
   // Busca os agendamentos para a data e colaborador selecionados
   const fetchWaitingAgendamentos = async () => {
@@ -39,7 +114,6 @@ function Medic() {
           colaboradorId,
           data: selectedDate,
         },
-        withCredentials: true,
       });
       console.log("Resposta recebida:", response);
 
@@ -74,7 +148,6 @@ function Medic() {
         { status: newStatus },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
         }
       );
       console.log("Resposta recebida:", response);
@@ -115,7 +188,6 @@ function Medic() {
         editForm,
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
         }
       );
       if (response.status === 200) {
@@ -135,11 +207,24 @@ function Medic() {
     }
   };
 
+  // Busca os agendamentos somente se a página estiver autorizada
   useEffect(() => {
-    fetchWaitingAgendamentos();
-    const intervalId = setInterval(fetchWaitingAgendamentos, 15000);
-    return () => clearInterval(intervalId);
-  }, [selectedDate]);
+    if (isAuthorized) {
+      fetchWaitingAgendamentos();
+      const intervalId = setInterval(fetchWaitingAgendamentos, 15000);
+      return () => clearInterval(intervalId);
+    }
+  }, [isAuthorized, selectedDate]);
+
+  // Mostra um carregando enquanto verifica o acesso
+  if (isAuthorized === null) {
+    return <div>Carregando...</div>;
+  }
+
+  // Não renderiza nada se não estiver autorizado (o useEffect lidará com o redirecionamento)
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col p-4 bg-blue-100">
@@ -151,7 +236,16 @@ function Medic() {
         {/* Menu Horizontal */}
         <ul className="menu menu-horizontal bg-base-200 rounded-box">
           <li>
-            <Link to="/" className="tooltip" data-tip="Sair">
+            <Link
+              to="/"
+              className="tooltip"
+              data-tip="Sair"
+              onClick={(e) => {
+                e.preventDefault();
+                logout();
+                navigate("/");
+              }}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10"
@@ -168,9 +262,17 @@ function Medic() {
               </svg>
             </Link>
           </li>
-          <li> 
-          <Link to="/bloco" className="tooltip" data-tip="Bloco para anotações">
-              <img src={bloconotas} alt="Logo" className="h-10 w-10"/>
+          <li>
+            <Link
+              to="/bloco"
+              className="tooltip"
+              data-tip="Bloco para anotações"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/bloco");
+              }}
+            >
+              <img src={bloconotas} alt="Logo" className="h-10 w-10" />
             </Link>
           </li>
         </ul>
