@@ -56,7 +56,7 @@ function Login() {
       <div className="hero-content w-1/2 flex-col flex-row-reverse">
         <div className="card flex-shrink-0 w-2/3 shadow-2xl bg-white bg-opacity-65 hero-content">
           <div className="card-body flex flex-col">
-            <h2 className="text-7xl font-KampungOrange">Equilibrium</h2>
+            <h2 className="text-7xl  font-KampungOrange">Equilibrium</h2>
             <br />
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit} className="form-control gap-2">
