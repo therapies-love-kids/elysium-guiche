@@ -1,32 +1,293 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../../context/AuthContext";
+import { Calendar} from "react-big-calendar";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { dateFnsLocalizer } from "react-big-calendar";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
-// Interface para uma nota
-interface Note {
-  id: number;
-  title: string;
-  content: string;
+const localizer = dateFnsLocalizer({
+  format: (date: Date, formatStr: string) => format(date, formatStr, { locale: ptBR }),
+  parse: (dateStr: string, formatStr: string) =>
+    parse(dateStr, formatStr, new Date(), { locale: ptBR }),
+  startOfWeek: () => startOfWeek(new Date(), { locale: ptBR }),
+  getDay,
+  locales: { "pt-BR": ptBR },
+});
+
+interface Agendamento {
+  pk: number;
+  sala: string;
+  dataHoraSala: string;
+  tipo: string;
+  status: string;
+  observacoes: string | null;
+  especialistaColaboradorId: number | null;
+  pacienteId: number | null;
+  recepcionistaColaboradorId: number | null;
+  responsavelId: number | null;
+  unidadePrefixo: string | null;
+  dataHoraCriacao: string | null;
 }
 
 function Recepcionist() {
+  const { perfil, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [unidadePrefixo, setUnidadePrefixo] = useState<string | null>(null);
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newAgendamento, setNewAgendamento] = useState({
+    sala: "",
+    dataHoraSala: "",
+    tipo: "",
+    status: "em espera",
+    observacoes: "",
+    especialistaColaboradorId: null as number | null,
+    pacienteId: null as number | null,
+    recepcionistaColaboradorId: null as number | null,
+    responsavelId: null as number | null,
+    unidadePrefixo: "",
+    dataHoraCriacao: new Date().toISOString(),
+  });
+
   const logoSrc = "LOVE KIDS.png";
   const addmedic = "add-medic.png";
   const addpatient = "add-patient.png";
   const bloco = "memo-pencil-svgrepo-com.svg";
   const addconvenio = "add-convenio.png";
 
+  const pageProfile = "recepcionist";
+
+  const checkAccess = async () => {
+    const nome = localStorage.getItem("nome");
+    if (!nome || !perfil) {
+      console.log(
+        "Nome ou perfil não encontrado no localStorage. Redirecionando para login."
+      );
+      setIsAuthorized(false);
+      return;
+    }
+
+    const authorizationKey = `authorized_${window.location.pathname}`;
+    const isPreviouslyAuthorized =
+      localStorage.getItem(authorizationKey) === "true";
+    if (isPreviouslyAuthorized) {
+      console.log("Página já autorizada anteriormente.");
+      setIsAuthorized(true);
+      return;
+    }
+
+    try {
+      console.log("Verificando acesso para o usuário:", nome);
+      const response = await axios.post(
+        "http://localhost:8080/usuarios/checkAccess",
+        null,
+        {
+          params: { nome, pageProfile },
+        }
+      );
+      const hasAccess = response.data.hasAccess;
+      console.log("Resposta do checkAccess:", response.data);
+      setIsAuthorized(hasAccess);
+
+      if (hasAccess) {
+        localStorage.setItem(authorizationKey, "true");
+      } else {
+        localStorage.removeItem(authorizationKey);
+      }
+    } catch (err) {
+      console.error("Erro ao verificar acesso:", err);
+      setIsAuthorized(false);
+      localStorage.removeItem(authorizationKey);
+    }
+  };
+
+  const setUserOnlineAndNavigate = async (path: string) => {
+    const nome = localStorage.getItem("nome");
+    if (nome) {
+      try {
+        await axios.post("http://localhost:8080/usuarios/setUserOnline", null, {
+          params: { nome },
+        });
+        navigate(path);
+      } catch (err) {
+        console.error("Erro ao definir usuário como online:", err);
+        navigate(path);
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
+  const fetchUnidadePrefixo = async () => {
+    const nome = localStorage.getItem("nome");
+    if (!nome) {
+      console.log("Nome não encontrado no localStorage.");
+      return;
+    }
+
+    try {
+      console.log("Buscando unidadePrefixo para o usuário:", nome);
+      const userResponse = await axios.get(
+        `http://localhost:8080/usuarios/getProfileByUserName/${nome}`
+      );
+      console.log("Resposta do getProfileByUserName:", userResponse.data);
+      const unidadePrefixo = userResponse.data.unidadePrefixo || "TES1";
+      setUnidadePrefixo(unidadePrefixo);
+      setNewAgendamento((prev) => ({ ...prev, unidadePrefixo }));
+    } catch (err) {
+      console.error("Erro ao buscar unidadePrefixo:", err);
+      setUnidadePrefixo("default");
+    }
+  };
+
+  const fetchAgendamentos = async () => {
+    if (!unidadePrefixo) {
+      console.log("unidadePrefixo não definido. Aguardando...");
+      return;
+    }
+
+    try {
+      console.log("Buscando agendamentos para unidadePrefixo:", unidadePrefixo);
+      const response = await axios.get(
+        `http://localhost:8080/agendamentos/by-unidade-prefixo/${unidadePrefixo}`
+      );
+      console.log("Resposta do fetchAgendamentos:", response.data);
+      setAgendamentos(response.data);
+    } catch (err) {
+      console.error("Erro ao buscar agendamentos:", err);
+      setAgendamentos([]);
+    }
+  };
+
+  const fetchCalendarEvents = async () => {
+    try {
+      console.log("Buscando todos os agendamentos para o calendário...");
+      const response = await axios.get(
+        "http://localhost:8080/agendamentos/all"
+      );
+      console.log("Resposta do fetchCalendarEvents:", response.data);
+      const events = response.data
+        .map((agendamento: Agendamento) => {
+          const start = new Date(agendamento.dataHoraSala);
+          if (isNaN(start.getTime())) {
+            console.error("Data inválida para agendamento:", agendamento);
+            return null;
+          }
+          return {
+            title: `${agendamento.tipo} - Sala: ${agendamento.sala}`,
+            start,
+            end: new Date(start.getTime() + 60 * 60 * 1000),
+            allDay: false,
+            resource: agendamento,
+          };
+        })
+        .filter((event: any) => event !== null);
+      console.log("Eventos mapeados para o calendário:", events);
+      setCalendarEvents(events);
+    } catch (err) {
+      console.error("Erro ao buscar eventos para o calendário:", err);
+      setCalendarEvents([]);
+    }
+  };
+
+  const createAgendamento = async () => {
+    try {
+      const agendamentoToSend = {
+        ...newAgendamento,
+        especialistaColaboradorId:
+          newAgendamento.especialistaColaboradorId || null,
+        pacienteId: newAgendamento.pacienteId || null,
+        recepcionistaColaboradorId:
+          newAgendamento.recepcionistaColaboradorId || null,
+        responsavelId: newAgendamento.responsavelId || null,
+        dataHoraSala: new Date(newAgendamento.dataHoraSala).toISOString(),
+        dataHoraCriacao: new Date().toISOString(),
+      };
+      console.log("Enviando novo agendamento:", agendamentoToSend);
+      const response = await axios.post(
+        "http://localhost:8080/agendamentos",
+        agendamentoToSend
+      );
+      console.log("Resposta do createAgendamento:", response.data);
+      if (response.status === 200) {
+        await fetchAgendamentos();
+        await fetchCalendarEvents();
+        setIsModalOpen(false);
+        setNewAgendamento({
+          sala: "",
+          dataHoraSala: "",
+          tipo: "",
+          status: "em espera",
+          observacoes: "",
+          especialistaColaboradorId: null,
+          pacienteId: null,
+          recepcionistaColaboradorId: null,
+          responsavelId: null,
+          unidadePrefixo: unidadePrefixo || "",
+          dataHoraCriacao: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao criar agendamento:", err);
+    }
+  };
+
+  useEffect(() => {
+    checkAccess();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchUnidadePrefixo();
+    }
+  }, [isAuthorized]);
+
+  useEffect(() => {
+    if (unidadePrefixo) {
+      fetchAgendamentos();
+      fetchCalendarEvents();
+    }
+  }, [unidadePrefixo]);
+
+  useEffect(() => {
+    if (isAuthorized === false) {
+      logout();
+      navigate("/");
+    }
+  }, [isAuthorized, navigate, logout]);
+
+  if (isAuthorized === null) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
   return (
     <div className="h-screen w-screen flex flex-col p-4 bg-blue-100">
-      {/* Logo no canto superior direito */}
       <div className="absolute top-0 right-0 p-4">
         <img src={logoSrc} alt="Logo" className="h-32 w-46" />
       </div>
 
-      {/* Menu Horizontal */}
       <div className="mt-4 flex flex-col gap-4">
         <ul className="menu menu-horizontal bg-base-200 rounded-box">
           <li>
-            <Link to="/" className="tooltip" data-tip="Sair">
+            <Link
+              to="/"
+              className="tooltip"
+              data-tip="Sair"
+              onClick={(e) => {
+                e.preventDefault();
+                logout();
+                navigate("/");
+              }}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10"
@@ -48,6 +309,10 @@ function Recepcionist() {
               to="/addmedic"
               className="tooltip"
               data-tip="Adicionar médico"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/addmedic");
+              }}
             >
               <img src={addmedic} alt="Logo" className="h-10 w-10" />
             </Link>
@@ -57,6 +322,10 @@ function Recepcionist() {
               to="/addpatient"
               className="tooltip"
               data-tip="Adicionar paciente"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/addpatient");
+              }}
             >
               <img src={addpatient} alt="Logo" className="h-10 w-10" />
             </Link>
@@ -66,6 +335,10 @@ function Recepcionist() {
               to="/addconvenio"
               className="tooltip"
               data-tip="Adicionar convenio"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/addconvenio");
+              }}
             >
               <img src={addconvenio} alt="Logo" className="h-10 w-10" />
             </Link>
@@ -75,6 +348,10 @@ function Recepcionist() {
               to="/bloco"
               className="tooltip"
               data-tip="Bloco de anotações"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/bloco");
+              }}
             >
               <img src={bloco} alt="Logo" className="h-10 w-10" />
             </Link>
@@ -82,14 +359,271 @@ function Recepcionist() {
         </ul>
         <br />
       </div>
-      {/* Colunas */}
-      <div className="mt-2 flex flex-1 gap-4">
-        {/* Lista de notas (esquerda) */}
-        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md"></div>
 
-        {/* Detalhes da nota (direita) */}
-        <div className="w-2/3 bg-white p-4 rounded-lg shadow-md"></div>
+      <div className="mt-2 flex flex-1 gap-4">
+        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Agendamentos</h2>
+          <button
+            className="btn btn-primary mb-4"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Adicionar Agendamento
+          </button>
+          {agendamentos.length > 0 ? (
+            <ul className="space-y-2">
+              {agendamentos.map((agendamento) => (
+                <li key={agendamento.pk} className="p-2 rounded bg-gray-200">
+                  <p>
+                    <strong>Tipo:</strong> {agendamento.tipo}
+                  </p>
+                  <p>
+                    <strong>Sala:</strong> {agendamento.sala}
+                  </p>
+                  <p>
+                    <strong>Data/Hora:</strong>{" "}
+                    {format(
+                      new Date(agendamento.dataHoraSala),
+                      "dd/MM/yyyy HH:mm",
+                      { locale: ptBR }
+                    )}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {agendamento.status}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhum agendamento encontrado para esta unidade.</p>
+          )}
+        </div>
+
+        <div className="w-2/3 bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Agenda</h2>
+          <Calendar
+            localizer={localizer}
+            events={calendarEvents}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 500 }}
+            messages={{
+              today: "Hoje",
+              previous: "Anterior",
+              next: "Próximo",
+              month: "Mês",
+              week: "Semana",
+              day: "Dia",
+              agenda: "Agenda",
+              date: "Data",
+              time: "Hora",
+              event: "Evento",
+              noEventsInRange: "Não há eventos neste período.",
+              showMore: (total) => `+${total} mais`,
+            }}
+            onSelectEvent={(event) =>
+              alert(
+                `Agendamento: ${event.title}\nData: ${format(
+                  event.start,
+                  "dd/MM/yyyy HH:mm",
+                  { locale: ptBR }
+                )}`
+              )
+            }
+          />
+        </div>
       </div>
+
+      {isModalOpen && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Adicionar Agendamento</h3>
+            <div className="py-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Sala</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAgendamento.sala}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      sala: e.target.value,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Data/Hora</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newAgendamento.dataHoraSala}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      dataHoraSala: e.target.value,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Tipo</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAgendamento.tipo}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      tipo: e.target.value,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Status</span>
+                </label>
+                <select
+                  value={newAgendamento.status}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      status: e.target.value,
+                    })
+                  }
+                  className="select select-bordered"
+                >
+                  <option value="em espera">Em Espera</option>
+                  <option value="em atendimento">Em Atendimento</option>
+                  <option value="finalizado">Finalizado</option>
+                </select>
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Observações</span>
+                </label>
+                <textarea
+                  value={newAgendamento.observacoes || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      observacoes: e.target.value,
+                    })
+                  }
+                  className="textarea textarea-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Especialista ID</span>
+                </label>
+                <input
+                  type="number"
+                  value={newAgendamento.especialistaColaboradorId || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      especialistaColaboradorId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Paciente ID</span>
+                </label>
+                <input
+                  type="number"
+                  value={newAgendamento.pacienteId || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      pacienteId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Recepcionista ID</span>
+                </label>
+                <input
+                  type="number"
+                  value={newAgendamento.recepcionistaColaboradorId || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      recepcionistaColaboradorId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Responsável ID</span>
+                </label>
+                <input
+                  type="number"
+                  value={newAgendamento.responsavelId || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      responsavelId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Unidade Prefixo</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAgendamento.unidadePrefixo || ""}
+                  onChange={(e) =>
+                    setNewAgendamento({
+                      ...newAgendamento,
+                      unidadePrefixo: e.target.value,
+                    })
+                  }
+                  className="input input-bordered"
+                  readOnly
+                />
+              </div>
+            </div>
+            <div className="modal-action">
+              <button className="btn btn-primary" onClick={createAgendamento}>
+                Salvar
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
