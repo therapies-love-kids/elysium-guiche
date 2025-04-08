@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
-import { Calendar} from "react-big-calendar";
+import { Calendar } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const localizer = dateFnsLocalizer({
-  format: (date: Date, formatStr: string) => format(date, formatStr, { locale: ptBR }),
+  format: (date: Date, formatStr: string) =>
+    format(date, formatStr, { locale: ptBR }),
   parse: (dateStr: string, formatStr: string) =>
     parse(dateStr, formatStr, new Date(), { locale: ptBR }),
   startOfWeek: () => startOfWeek(new Date(), { locale: ptBR }),
@@ -435,182 +436,198 @@ function Recepcionist() {
 
       {isModalOpen && (
         <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg">Adicionar Agendamento</h3>
-            <div className="py-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Sala</span>
-                </label>
-                <input
-                  type="text"
-                  value={newAgendamento.sala}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      sala: e.target.value,
-                    })
-                  }
-                  className="input input-bordered"
-                />
+          <div className="modal-box mx-auto max-w-4xl">
+            <h3 className="font-bold text-lg mb-4">Adicionar Agendamento</h3>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Coluna 1 */}
+              <div className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Sala</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newAgendamento.sala}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        sala: e.target.value,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Data/Hora</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={newAgendamento.dataHoraSala}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        dataHoraSala: e.target.value,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Tipo</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newAgendamento.tipo}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        tipo: e.target.value,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Status</span>
+                  </label>
+                  <select
+                    value={newAgendamento.status}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        status: e.target.value,
+                      })
+                    }
+                    className="select select-bordered w-full"
+                  >
+                    <option value="em espera">Em Espera</option>
+                    <option value="em atendimento">Em Atendimento</option>
+                    <option value="finalizado">Finalizado</option>
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Observações</span>
+                  </label>
+                  <textarea
+                    value={newAgendamento.observacoes || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        observacoes: e.target.value,
+                      })
+                    }
+                    className="textarea textarea-bordered w-full"
+                  />
+                </div>
               </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Data/Hora</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  value={newAgendamento.dataHoraSala}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      dataHoraSala: e.target.value,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Tipo</span>
-                </label>
-                <input
-                  type="text"
-                  value={newAgendamento.tipo}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      tipo: e.target.value,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Status</span>
-                </label>
-                <select
-                  value={newAgendamento.status}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      status: e.target.value,
-                    })
-                  }
-                  className="select select-bordered"
-                >
-                  <option value="em espera">Em Espera</option>
-                  <option value="em atendimento">Em Atendimento</option>
-                  <option value="finalizado">Finalizado</option>
-                </select>
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Observações</span>
-                </label>
-                <textarea
-                  value={newAgendamento.observacoes || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      observacoes: e.target.value,
-                    })
-                  }
-                  className="textarea textarea-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Especialista ID</span>
-                </label>
-                <input
-                  type="number"
-                  value={newAgendamento.especialistaColaboradorId || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      especialistaColaboradorId: e.target.value
-                        ? parseInt(e.target.value)
-                        : null,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Paciente ID</span>
-                </label>
-                <input
-                  type="number"
-                  value={newAgendamento.pacienteId || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      pacienteId: e.target.value
-                        ? parseInt(e.target.value)
-                        : null,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Recepcionista ID</span>
-                </label>
-                <input
-                  type="number"
-                  value={newAgendamento.recepcionistaColaboradorId || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      recepcionistaColaboradorId: e.target.value
-                        ? parseInt(e.target.value)
-                        : null,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Responsável ID</span>
-                </label>
-                <input
-                  type="number"
-                  value={newAgendamento.responsavelId || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      responsavelId: e.target.value
-                        ? parseInt(e.target.value)
-                        : null,
-                    })
-                  }
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Unidade Prefixo</span>
-                </label>
-                <input
-                  type="text"
-                  value={newAgendamento.unidadePrefixo || ""}
-                  onChange={(e) =>
-                    setNewAgendamento({
-                      ...newAgendamento,
-                      unidadePrefixo: e.target.value,
-                    })
-                  }
-                  className="input input-bordered"
-                  readOnly
-                />
+
+              {/* Coluna 2 */}
+              <div className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Especialista ID</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={newAgendamento.especialistaColaboradorId || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        especialistaColaboradorId: e.target.value
+                          ? parseInt(e.target.value)
+                          : null,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Paciente ID</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={newAgendamento.pacienteId || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        pacienteId: e.target.value
+                          ? parseInt(e.target.value)
+                          : null,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Recepcionista ID</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={newAgendamento.recepcionistaColaboradorId || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        recepcionistaColaboradorId: e.target.value
+                          ? parseInt(e.target.value)
+                          : null,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Responsável ID</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={newAgendamento.responsavelId || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        responsavelId: e.target.value
+                          ? parseInt(e.target.value)
+                          : null,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Unidade Prefixo</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newAgendamento.unidadePrefixo || ""}
+                    onChange={(e) =>
+                      setNewAgendamento({
+                        ...newAgendamento,
+                        unidadePrefixo: e.target.value,
+                      })
+                    }
+                    className="input input-bordered w-full"
+                    readOnly
+                  />
+                </div>
               </div>
             </div>
-            <div className="modal-action">
+
+            <div className="modal-action mt-6">
               <button className="btn btn-primary" onClick={createAgendamento}>
                 Salvar
               </button>
