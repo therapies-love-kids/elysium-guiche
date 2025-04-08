@@ -60,6 +60,7 @@ function Recepcionist() {
   const addpatient = "add-patient.png";
   const bloco = "memo-pencil-svgrepo-com.svg";
   const addconvenio = "add-convenio.png";
+  const config = "config.png";
 
   const pageProfile = "recepcionist";
 
@@ -355,6 +356,19 @@ function Recepcionist() {
               }}
             >
               <img src={bloco} alt="Logo" className="h-10 w-10" />
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/congig"
+              className="tooltip"
+              data-tip="Configurações"
+              onClick={(e) => {
+                e.preventDefault();
+                setUserOnlineAndNavigate("/Config");
+              }}
+            >
+              <img src={config} alt="Logo" className="h-10 w-10" />
             </Link>
           </li>
         </ul>

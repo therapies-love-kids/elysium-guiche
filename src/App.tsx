@@ -11,6 +11,7 @@ import Addconvenio from "./pages/Profile/recepcionist/addconvenio";
 import Addmedic from "./pages/Profile/recepcionist/addmedic";
 import Addpatient from "./pages/Profile/recepcionist/addpatient";
 import { AuthProvider } from "./context/AuthContext";
+import Config from "./pages/Profile/everyone/config";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/addconvenio" element={<Addconvenio />} />
         <Route path="/addmedic" element={<Addmedic />} />
         <Route path="/addpatient" element={<Addpatient />} />
+        <Route path="/config" element={<Config />} />
       </Routes>
     </Router>
 
