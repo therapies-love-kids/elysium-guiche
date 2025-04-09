@@ -358,19 +358,6 @@ function Recepcionist() {
               <img src={bloco} alt="Logo" className="h-10 w-10" />
             </Link>
           </li>
-          <li>
-            <Link
-              to="/congig"
-              className="tooltip"
-              data-tip="Configurações"
-              onClick={(e) => {
-                e.preventDefault();
-                setUserOnlineAndNavigate("/Config");
-              }}
-            >
-              <img src={config} alt="Logo" className="h-10 w-10" />
-            </Link>
-          </li>
         </ul>
         <br />
       </div>
@@ -387,7 +374,7 @@ function Recepcionist() {
           {agendamentos.length > 0 ? (
             <ul className="space-y-2">
               {agendamentos.map((agendamento) => (
-                <li key={agendamento.pk} className="p-2 rounded bg-gray-200">
+                <li key={agendamento.pk} className="p-2 rounded bg-base-200">
                   <p>
                     <strong>Tipo:</strong> {agendamento.tipo}
                   </p>
