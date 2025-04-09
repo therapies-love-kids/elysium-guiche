@@ -3,10 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 
+// Interface para o Convênio, baseada no ConvenioDTO do backend
+interface Convenio {
+  pk: number;
+  ativo: boolean;
+  nome: string;
+  nome_curto: string;
+}
+
 function Addconvenio() {
   const { perfil, logout } = useAuth();
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [convenios, setConvenios] = useState<Convenio[]>([]);
+  const [selectedConvenio, setSelectedConvenio] = useState<Convenio | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ ativo: true, nome: "", nome_curto: "" });
+  const [isAdding, setIsAdding] = useState(false);
+  const [addForm, setAddForm] = useState({ ativo: true, nome: "", nome_curto: "" });
 
   const logoSrc = "LOVE KIDS.png";
   const addmedic = "add-medic.png";
@@ -15,7 +29,7 @@ function Addconvenio() {
   const addagendamento = "add-agendamento.png";
 
   // Determina o perfil da página com base no nome da pasta
-  const pageProfile = "recepcionist"; // Nome da pasta onde a página está localizada
+  const pageProfile = "recepcionist";
 
   // Função para verificar se o usuário tem acesso à página
   const checkAccess = async () => {
@@ -25,10 +39,8 @@ function Addconvenio() {
       return;
     }
 
-    // Verifica se a página já foi autorizada anteriormente (para evitar redirecionamento ao recarregar)
     const authorizationKey = `authorized_${window.location.pathname}`;
-    const isPreviouslyAuthorized =
-      localStorage.getItem(authorizationKey) === "true";
+    const isPreviouslyAuthorized = localStorage.getItem(authorizationKey) === "true";
     if (isPreviouslyAuthorized) {
       setIsAuthorized(true);
       return;
@@ -46,7 +58,6 @@ function Addconvenio() {
       setIsAuthorized(hasAccess);
 
       if (hasAccess) {
-        // Armazena a autorização no localStorage para permitir recarregamento
         localStorage.setItem(authorizationKey, "true");
       } else {
         localStorage.removeItem(authorizationKey);
@@ -58,7 +69,7 @@ function Addconvenio() {
     }
   };
 
-  // Função para definir o usuário como online antes de navegar para outra página
+  // Função para definir o usuário como online antes de navegar
   const setUserOnlineAndNavigate = async (path: string) => {
     const nome = localStorage.getItem("nome");
     if (nome) {
@@ -69,10 +80,84 @@ function Addconvenio() {
         navigate(path);
       } catch (err) {
         console.error("Erro ao definir usuário como online:", err);
-        navigate(path); // Navega mesmo se houver erro, mas isso pode ser ajustado conforme necessário
+        navigate(path);
       }
     } else {
       navigate(path);
+    }
+  };
+
+  // Função para buscar todos os convênios
+  const fetchConvenios = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/convenios");
+      if (response.status === 200) {
+        setConvenios(response.data);
+      } else {
+        setConvenios([]);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar convênios:", err);
+      setConvenios([]);
+    }
+  };
+
+  // Função para adicionar um novo convênio
+  const addConvenio = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/convenios",
+        addForm,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status === 201) {
+        const newConvenio = response.data;
+        setConvenios((prev) => [...prev, newConvenio]);
+        setIsAdding(false);
+        setAddForm({ ativo: true, nome: "", nome_curto: "" });
+        setSelectedConvenio(newConvenio);
+      }
+    } catch (err) {
+      console.error("Erro ao adicionar convênio:", err);
+    }
+  };
+
+  // Função para abrir o modal de edição com os dados do convênio
+  const openEditModal = (convenio: Convenio) => {
+    setEditForm({
+      ativo: convenio.ativo,
+      nome: convenio.nome,
+      nome_curto: convenio.nome_curto,
+    });
+    setIsModalOpen(true);
+  };
+
+  // Função para atualizar os detalhes do convênio
+  const updateConvenioDetails = async (pk: number) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/convenios/${pk}`,
+        editForm,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status === 200) {
+        // Atualiza a lista de convênios e o convênio selecionado
+        setConvenios((prev) =>
+          prev.map((convenio) =>
+            convenio.pk === pk ? { ...convenio, ...editForm } : convenio
+          )
+        );
+        setSelectedConvenio((prev) =>
+          prev && prev.pk === pk ? { ...prev, ...editForm } : prev
+        );
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar convênio:", err);
     }
   };
 
@@ -81,7 +166,14 @@ function Addconvenio() {
     checkAccess();
   }, []);
 
-  // Redireciona para a página de login se não estiver autorizado
+  // Busca os convênios quando a página está autorizada
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchConvenios();
+    }
+  }, [isAuthorized]);
+
+  // Redireciona para login se não estiver autorizado
   useEffect(() => {
     if (isAuthorized === false) {
       logout();
@@ -94,7 +186,7 @@ function Addconvenio() {
     return <div>Carregando...</div>;
   }
 
-  // Não renderiza nada se não estiver autorizado (o useEffect lidará com o redirecionamento)
+  // Não renderiza nada se não estiver autorizado
   if (!isAuthorized) {
     return null;
   }
@@ -189,16 +281,184 @@ function Addconvenio() {
             </Link>
           </li>
         </ul>
-        <br />
       </div>
-      {/* Colunas */}
-      <div className="mt-2 flex flex-1 gap-4">
-        {/* Lista de notas (esquerda) */}
-        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md"></div>
 
-        {/* Detalhes da nota (direita) */}
-        <div className="w-2/3 bg-white p-4 rounded-lg shadow-md"></div>
+      {/* Colunas */}
+      <div className="mt-12 flex flex-1 gap-4">
+        {/* Lista de Convênios (esquerda) */}
+        <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Lista de Convênios</h2>
+          <button
+            className="btn btn-primary mb-4"
+            onClick={() => {
+              setIsAdding(true);
+              setSelectedConvenio(null);
+              setAddForm({ ativo: true, nome: "", nome_curto: "" });
+            }}
+          >
+            Adicionar Convênio
+          </button>
+          {convenios.length > 0 ? (
+            <ul className="space-y-2">
+              {convenios.map((convenio) => (
+                <li
+                  key={convenio.pk}
+                  className={`p-2 rounded cursor-pointer ${
+                    selectedConvenio?.pk === convenio.pk && !isAdding ? "bg-blue-200" : "bg-gray-200"
+                  }`}
+                  onClick={() => {
+                    setSelectedConvenio(convenio);
+                    setIsAdding(false);
+                  }}
+                >
+                  {convenio.nome_curto} {convenio.ativo ? "(Ativo)" : "(Inativo)"}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhum convênio cadastrado.</p>
+          )}
+        </div>
+
+        {/* Detalhes ou Formulário de Adição (direita) */}
+        <div className="w-2/3 bg-white p-4 rounded-lg shadow-md">
+          {isAdding ? (
+            <>
+              <h2 className="text-xl font-bold mb-4">Adicionar Novo Convênio</h2>
+              <div className="space-y-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Nome</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={addForm.nome}
+                    onChange={(e) => setAddForm({ ...addForm, nome: e.target.value })}
+                    className="input input-bordered"
+                    placeholder="Nome do convênio"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Nome Curto</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={addForm.nome_curto}
+                    onChange={(e) => setAddForm({ ...addForm, nome_curto: e.target.value })}
+                    className="input input-bordered"
+                    placeholder="Nome curto do convênio"
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Ativo</span>
+                  </label>
+                  <input
+                    type="checkbox"
+                    checked={addForm.ativo}
+                    onChange={(e) => setAddForm({ ...addForm, ativo: e.target.checked })}
+                    className="toggle"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    className="btn btn-primary"
+                    onClick={addConvenio}
+                    disabled={!addForm.nome || !addForm.nome_curto}
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setIsAdding(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : selectedConvenio ? (
+            <>
+              <h2 className="text-xl font-bold mb-4">Detalhes do Convênio</h2>
+              <div className="space-y-2">
+                <p><strong>ID:</strong> {selectedConvenio.pk}</p>
+                <p><strong>Nome:</strong> {selectedConvenio.nome}</p>
+                <p><strong>Nome Curto:</strong> {selectedConvenio.nome_curto}</p>
+                <p><strong>Status:</strong> {selectedConvenio.ativo ? "Ativo" : "Inativo"}</p>
+              </div>
+              <div className="mt-4">
+                <button
+                  className="btn btn-warning"
+                  onClick={() => openEditModal(selectedConvenio)}
+                >
+                  Editar
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="text-center">Selecione um convênio ou adicione um novo.</p>
+          )}
+        </div>
       </div>
+
+      {/* Modal de Edição */}
+      {isModalOpen && selectedConvenio && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Editar Convênio</h3>
+            <div className="py-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Nome</span>
+                </label>
+                <input
+                  type="text"
+                  value={editForm.nome}
+                  onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Nome Curto</span>
+                </label>
+                <input
+                  type="text"
+                  value={editForm.nome_curto}
+                  onChange={(e) => setEditForm({ ...editForm, nome_curto: e.target.value })}
+                  className="input input-bordered"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Ativo</span>
+                </label>
+                <input
+                  type="checkbox"
+                  checked={editForm.ativo}
+                  onChange={(e) => setEditForm({ ...editForm, ativo: e.target.checked })}
+                  className="toggle"
+                />
+              </div>
+            </div>
+            <div className="modal-action">
+              <button
+                className="btn btn-primary"
+                onClick={() => updateConvenioDetails(selectedConvenio.pk)}
+              >
+                Salvar
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
