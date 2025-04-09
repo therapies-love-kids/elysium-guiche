@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 // Interface para uma nota
 interface Note {
@@ -9,6 +10,10 @@ interface Note {
 }
 
 function Notes() {
+  const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [userProfile, setUserProfile] = useState<string | null>(null);
+
   // Estado para as notas, carregadas do localStorage
   const [notes, setNotes] = useState<Note[]>(() => {
     const savedNotes = localStorage.getItem("notes");
@@ -23,7 +28,109 @@ function Notes() {
   const [editContent, setEditContent] = useState("");
 
   const logoSrc = "LOVE KIDS.png";
-  const telaatendimento = "clipboard-text-alt-svgrepo-com.svg";
+  const goback = "go-back-svgrepo-com.png";
+
+  // Função para verificar se o usuário está online e obter o perfil
+  const checkUserStatus = async () => {
+    const nome = localStorage.getItem("nome");
+    if (!nome) {
+      console.log("Nome não encontrado no localStorage. Redirecionando para login.");
+      setIsAuthorized(false);
+      return;
+    }
+
+    // Verifica se o usuário já foi autorizado anteriormente para esta página
+    const authorizationKey = `authorized_${window.location.pathname}`;
+    const isPreviouslyAuthorized = localStorage.getItem(authorizationKey) === "true";
+    if (isPreviouslyAuthorized) {
+      console.log("Página já autorizada anteriormente.");
+      try {
+        // Ainda precisamos buscar o perfil para o redirecionamento
+        const userResponse = await axios.get(
+          `http://localhost:8080/usuarios/getProfileByUserName/${nome}`
+        );
+        console.log("Resposta do getProfileByUserName:", userResponse.data);
+
+        if (!userResponse.data || !userResponse.data.perfil) {
+          console.log("Perfil não encontrado para o usuário.");
+          setIsAuthorized(false);
+          localStorage.removeItem(authorizationKey);
+          return;
+        }
+
+        const perfil = userResponse.data.perfil;
+        setUserProfile(perfil);
+        setIsAuthorized(true);
+      } catch (err) {
+        console.error("Erro ao buscar perfil do usuário:", err);
+        setIsAuthorized(false);
+        localStorage.removeItem(authorizationKey);
+      }
+      return;
+    }
+
+    try {
+      console.log("Buscando perfil do usuário:", nome);
+      const userResponse = await axios.get(
+        `http://localhost:8080/usuarios/getProfileByUserName/${nome}`
+      );
+      console.log("Resposta do getProfileByUserName:", userResponse.data);
+
+      if (!userResponse.data || !userResponse.data.perfil) {
+        console.log("Perfil não encontrado para o usuário.");
+        setIsAuthorized(false);
+        return;
+      }
+
+      const perfil = userResponse.data.perfil;
+      setUserProfile(perfil);
+
+      // Verifica se o usuário está online
+      const usuarioResponse = await axios.get(
+        `http://localhost:8080/usuarios/getProfileByUserName/${nome}`
+      );
+      const isOnline = usuarioResponse.data.online;
+
+      if (isOnline) {
+        console.log("Usuário está online. Definindo como offline...");
+        await axios.post("http://localhost:8080/usuarios/setUserOffline", null, {
+          params: { nome },
+        });
+        setIsAuthorized(true);
+        // Salva a autorização no localStorage
+        localStorage.setItem(authorizationKey, "true");
+      } else {
+        console.log("Usuário não está online. Redirecionando para login.");
+        setIsAuthorized(false);
+        localStorage.removeItem(authorizationKey);
+      }
+    } catch (err) {
+      console.error("Erro ao verificar status do usuário:", err);
+      setIsAuthorized(false);
+      localStorage.removeItem(authorizationKey);
+    }
+  };
+
+  // Função para navegar de volta à página principal do perfil
+  const navigateToProfilePage = async () => {
+    const nome = localStorage.getItem("nome");
+    if (nome) {
+      try {
+        await axios.post("http://localhost:8080/usuarios/setUserOnline", null, {
+          params: { nome },
+        });
+        // Remove a autorização ao sair da página
+        const authorizationKey = `authorized_${window.location.pathname}`;
+        localStorage.removeItem(authorizationKey);
+        navigate(`/${userProfile}`);
+      } catch (err) {
+        console.error("Erro ao definir usuário como online:", err);
+        navigate(`/${userProfile}`);
+      }
+    } else {
+      navigate(`/${userProfile}`);
+    }
+  };
 
   // Salva as notas no localStorage sempre que o estado mudar
   useEffect(() => {
@@ -46,6 +153,18 @@ function Notes() {
       setEditContent("");
     }
   }, [selectedNote]);
+
+  // Verifica o status do usuário ao carregar a página
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
+
+  // Redireciona para a página de login se não estiver autorizado
+  useEffect(() => {
+    if (isAuthorized === false) {
+      navigate("/");
+    }
+  }, [isAuthorized, navigate]);
 
   // Função para adicionar uma nova nota
   const addNote = () => {
@@ -82,6 +201,14 @@ function Notes() {
     setSelectedNote(null);
   };
 
+  if (isAuthorized === null) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
   return (
     <div className="h-screen w-screen flex flex-col p-4 bg-blue-100">
       {/* Logo no canto superior direito */}
@@ -93,32 +220,18 @@ function Notes() {
       <div className="mt-4 flex flex-col gap-4">
         <ul className="menu menu-horizontal bg-base-200 rounded-box">
           <li>
-            <Link to="/" className="tooltip" data-tip="Sair">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-            </Link>
-          </li>
-          <li>
             <Link
-              to="/telaatendimento"
+              to={`/${userProfile}`}
               className="tooltip"
-              data-tip="Tela de Atendimento"
+              data-tip="Voltar"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateToProfilePage();
+              }}
             >
               <img
-                src={telaatendimento}
-                alt="Tela de Atendimento"
+                src={goback}
+                alt="Voltar à Página Principal"
                 className="h-10 w-10"
               />
             </Link>
@@ -126,11 +239,12 @@ function Notes() {
         </ul>
         <br />
         <div className="text-center text-lg text-red-500 font-bold">
-          Atenção Todas as notas criadas aqui só ficarão salvas até o cachê do
+          Atenção: Todas as notas criadas aqui só ficarão salvas até o cachê do
           navegador ser limpo, <br /> não salve notas muito importantes ou documentos
           aqui.
         </div>
       </div>
+
       {/* Colunas */}
       <div className="mt-2 flex flex-1 gap-4">
         {/* Lista de notas (esquerda) */}
