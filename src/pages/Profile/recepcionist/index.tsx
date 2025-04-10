@@ -22,6 +22,7 @@ interface Agendamento {
   pk: number;
   sala: string;
   dataHoraSala: string;
+  dataHora: string;
   tipo: string;
   status: string;
   observacoes: string | null;
@@ -44,6 +45,7 @@ function Recepcionist() {
   const [newAgendamento, setNewAgendamento] = useState({
     sala: "",
     dataHoraSala: "",
+    dataHora: "",
     tipo: "",
     status: "em espera",
     observacoes: "",
@@ -208,6 +210,7 @@ function Recepcionist() {
           newAgendamento.recepcionistaColaboradorId || null,
         responsavelId: newAgendamento.responsavelId || null,
         dataHoraSala: new Date(newAgendamento.dataHoraSala).toISOString(),
+        dataHora: new Date(newAgendamento.dataHora).toISOString(),
         dataHoraCriacao: new Date().toISOString(),
       };
       console.log("Enviando novo agendamento:", agendamentoToSend);
@@ -223,6 +226,7 @@ function Recepcionist() {
         setNewAgendamento({
           sala: "",
           dataHoraSala: "",
+          dataHora: "2025-04-01 00:00:00.000 -0300",
           tipo: "",
           status: "em espera",
           observacoes: "",
