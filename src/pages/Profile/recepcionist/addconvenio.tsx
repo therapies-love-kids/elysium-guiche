@@ -8,7 +8,7 @@ interface Convenio {
   pk: number;
   ativo: boolean;
   nome: string;
-  nome_curto: string;
+  nomeCurto: string; // Ajustado para corresponder ao ConvenioDTO (nomeCurto)
 }
 
 function Addconvenio() {
@@ -18,9 +18,9 @@ function Addconvenio() {
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [selectedConvenio, setSelectedConvenio] = useState<Convenio | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ ativo: true, nome: "", nome_curto: "" });
+  const [editForm, setEditForm] = useState({ ativo: true, nome: "", nomeCurto: "" });
   const [isAdding, setIsAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ ativo: true, nome: "", nome_curto: "" });
+  const [addForm, setAddForm] = useState({ ativo: true, nome: "", nomeCurto: "" }); // Ajustado para corresponder ao DTO
 
   const logoSrc = "LOVE KIDS.png";
   const addmedic = "add-medic.png";
@@ -90,7 +90,7 @@ function Addconvenio() {
   // Função para buscar todos os convênios
   const fetchConvenios = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/convenios");
+      const response = await axios.get("http://localhost:8080/api/convenios");
       if (response.status === 200) {
         setConvenios(response.data);
       } else {
@@ -102,25 +102,50 @@ function Addconvenio() {
     }
   };
 
+  const deleteModal = async (convenio: Convenio) => {
+    try {
+      console.log("Deletando convênio:", convenio.pk);
+      // Faz a requisição de exclusão e aguarda a resposta
+      await axios.delete(`http://localhost:8080/api/convenios/${convenio.pk}`);
+      
+      // Após a exclusão bem-sucedida, atualiza a lista
+      await fetchConvenios();
+      
+      // Fecha o modal e limpa a seleção
+      setIsModalOpen(false);
+      setSelectedConvenio(null);
+    } catch (err) {
+      console.error("Erro ao deletar convênio:", err);
+    }
+  };
+
   // Função para adicionar um novo convênio
   const addConvenio = async () => {
+    console.log("Adicionando convênio (objeto):", addForm);
+    console.log("Adicionando convênio (JSON):", JSON.stringify(addForm));
     try {
       const response = await axios.post(
-        "http://localhost:8080/convenios",
+        "http://localhost:8080/api/convenios",
         addForm,
         {
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
         }
       );
-      if (response.status === 201) {
+      console.log("Resposta do servidor:", response.data);
+      if (response.status === 200) { // O backend retorna 200 para POST bem-sucedido
         const newConvenio = response.data;
         setConvenios((prev) => [...prev, newConvenio]);
         setIsAdding(false);
-        setAddForm({ ativo: true, nome: "", nome_curto: "" });
+        setAddForm({ ativo: true, nome: "", nomeCurto: "" });
         setSelectedConvenio(newConvenio);
       }
-    } catch (err) {
-      console.error("Erro ao adicionar convênio:", err);
+    } catch (err: any) {
+      console.error("Erro ao adicionar convênio:", err.response?.data || err.message);
+      console.error("Status:", err.response?.status);
+      console.error("Headers:", err.response?.headers);
     }
   };
 
@@ -129,7 +154,7 @@ function Addconvenio() {
     setEditForm({
       ativo: convenio.ativo,
       nome: convenio.nome,
-      nome_curto: convenio.nome_curto,
+      nomeCurto: convenio.nomeCurto,
     });
     setIsModalOpen(true);
   };
@@ -138,7 +163,7 @@ function Addconvenio() {
   const updateConvenioDetails = async (pk: number) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/convenios/${pk}`,
+        `http://localhost:8080/api/convenios/${pk}`,
         editForm,
         {
           headers: { "Content-Type": "application/json" },
@@ -293,7 +318,7 @@ function Addconvenio() {
             onClick={() => {
               setIsAdding(true);
               setSelectedConvenio(null);
-              setAddForm({ ativo: true, nome: "", nome_curto: "" });
+              setAddForm({ ativo: true, nome: "", nomeCurto: "" });
             }}
           >
             Adicionar Convênio
@@ -311,7 +336,7 @@ function Addconvenio() {
                     setIsAdding(false);
                   }}
                 >
-                  {convenio.nome_curto} {convenio.ativo ? "(Ativo)" : "(Inativo)"}
+                  {convenio.nomeCurto} {convenio.ativo ? "(Ativo)" : "(Inativo)"}
                 </li>
               ))}
             </ul>
@@ -344,8 +369,8 @@ function Addconvenio() {
                   </label>
                   <input
                     type="text"
-                    value={addForm.nome_curto}
-                    onChange={(e) => setAddForm({ ...addForm, nome_curto: e.target.value })}
+                    value={addForm.nomeCurto}
+                    onChange={(e) => setAddForm({ ...addForm, nomeCurto: e.target.value })}
                     className="input input-bordered"
                     placeholder="Nome curto do convênio"
                   />
@@ -365,7 +390,7 @@ function Addconvenio() {
                   <button
                     className="btn btn-primary"
                     onClick={addConvenio}
-                    disabled={!addForm.nome || !addForm.nome_curto}
+                    disabled={!addForm.nome.trim() || !addForm.nomeCurto.trim()}
                   >
                     Salvar
                   </button>
@@ -384,7 +409,7 @@ function Addconvenio() {
               <div className="space-y-2">
                 <p><strong>ID:</strong> {selectedConvenio.pk}</p>
                 <p><strong>Nome:</strong> {selectedConvenio.nome}</p>
-                <p><strong>Nome Curto:</strong> {selectedConvenio.nome_curto}</p>
+                <p><strong>Nome Curto:</strong> {selectedConvenio.nomeCurto}</p>
                 <p><strong>Status:</strong> {selectedConvenio.ativo ? "Ativo" : "Inativo"}</p>
               </div>
               <div className="mt-4">
@@ -393,6 +418,12 @@ function Addconvenio() {
                   onClick={() => openEditModal(selectedConvenio)}
                 >
                   Editar
+                </button>
+                <button
+                  className="btn btn-error ml-2"
+                  onClick={() => deleteModal(selectedConvenio)}
+                >
+                  Excluir
                 </button>
               </div>
             </>
@@ -408,26 +439,26 @@ function Addconvenio() {
           <div className="modal-box">
             <h3 className="font-bold text-lg">Editar Convênio</h3>
             <div className="py-4">
-              <div className="form-control">
+              <div className="form-control my-4">
                 <label className="label">
-                  <span className="label-text">Nome</span>
+                  <span className="label-text">Nome:</span>
                 </label>
                 <input
                   type="text"
                   value={editForm.nome}
                   onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
-                  className="input input-bordered"
+                  className="input input-bordered ml-12"
                 />
               </div>
-              <div className="form-control">
+              <div className="form-control my-4">
                 <label className="label">
-                  <span className="label-text">Nome Curto</span>
+                  <span className="label-text">Nome Curto:</span>
                 </label>
                 <input
                   type="text"
-                  value={editForm.nome_curto}
-                  onChange={(e) => setEditForm({ ...editForm, nome_curto: e.target.value })}
-                  className="input input-bordered"
+                  value={editForm.nomeCurto}
+                  onChange={(e) => setEditForm({ ...editForm, nomeCurto: e.target.value })}
+                  className="input input-bordered ml-2"
                 />
               </div>
               <div className="form-control">
@@ -438,13 +469,13 @@ function Addconvenio() {
                   type="checkbox"
                   checked={editForm.ativo}
                   onChange={(e) => setEditForm({ ...editForm, ativo: e.target.checked })}
-                  className="toggle"
+                  className="toggle ml-2"
                 />
               </div>
             </div>
             <div className="modal-action">
               <button
-                className="btn btn-primary"
+                className="btn btn-primary ml-2"
                 onClick={() => updateConvenioDetails(selectedConvenio.pk)}
               >
                 Salvar
