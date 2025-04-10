@@ -18,20 +18,20 @@ const localizer = dateFnsLocalizer({
   locales: { "pt-BR": ptBR },
 });
 
+// Interface ajustada para corresponder ao AgendamentoDTO do backend
 interface Agendamento {
   pk: number;
-  sala: string;
-  dataHoraSala: string;
+  especialistaColaboradorId: number;
+  pacienteId: number;
+  recepcionistaColaboradorId: number | null;
+  responsavelId: number | null;
+  unidadePrefixo: string;
+  dataHoraCriacao: string;
   dataHora: string;
+  sala: string;
   tipo: string;
   status: string;
   observacoes: string | null;
-  especialistaColaboradorId: number | null;
-  pacienteId: number | null;
-  recepcionistaColaboradorId: number | null;
-  responsavelId: number | null;
-  unidadePrefixo: string | null;
-  dataHoraCriacao: string | null;
 }
 
 function Recepcionist() {
@@ -44,10 +44,9 @@ function Recepcionist() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAgendamento, setNewAgendamento] = useState({
     sala: "",
-    dataHoraSala: "",
-    dataHora: "",
+    dataHora: "", // Ajustado para corresponder ao DTO (dataHora)
     tipo: "",
-    status: "em espera",
+    status: "em_espera", // Ajustado para corresponder ao valor padrão do backend
     observacoes: "",
     especialistaColaboradorId: null as number | null,
     pacienteId: null as number | null,
@@ -158,7 +157,7 @@ function Recepcionist() {
     try {
       console.log("Buscando agendamentos para unidadePrefixo:", unidadePrefixo);
       const response = await axios.get(
-        `http://localhost:8080/agendamentos/by-unidade-prefixo/${unidadePrefixo}`
+        `http://localhost:8080/api/agendamentos/by-unidade-prefixo/${unidadePrefixo}`
       );
       console.log("Resposta do fetchAgendamentos:", response.data);
       setAgendamentos(response.data);
@@ -171,13 +170,11 @@ function Recepcionist() {
   const fetchCalendarEvents = async () => {
     try {
       console.log("Buscando todos os agendamentos para o calendário...");
-      const response = await axios.get(
-        "http://localhost:8080/agendamentos/all"
-      );
+      const response = await axios.get("http://localhost:8080/api/agendamentos");
       console.log("Resposta do fetchCalendarEvents:", response.data);
       const events = response.data
         .map((agendamento: Agendamento) => {
-          const start = new Date(agendamento.dataHoraSala);
+          const start = new Date(agendamento.dataHora); // Ajustado para usar dataHora
           if (isNaN(start.getTime())) {
             console.error("Data inválida para agendamento:", agendamento);
             return null;
@@ -185,7 +182,7 @@ function Recepcionist() {
           return {
             title: `${agendamento.tipo} - Sala: ${agendamento.sala}`,
             start,
-            end: new Date(start.getTime() + 60 * 60 * 1000),
+            end: new Date(start.getTime() + 60 * 60 * 1000), // 1 hora de duração
             allDay: false,
             resource: agendamento,
           };
@@ -209,13 +206,12 @@ function Recepcionist() {
         recepcionistaColaboradorId:
           newAgendamento.recepcionistaColaboradorId || null,
         responsavelId: newAgendamento.responsavelId || null,
-        dataHoraSala: new Date(newAgendamento.dataHoraSala).toISOString(),
         dataHora: new Date(newAgendamento.dataHora).toISOString(),
         dataHoraCriacao: new Date().toISOString(),
       };
       console.log("Enviando novo agendamento:", agendamentoToSend);
       const response = await axios.post(
-        "http://localhost:8080/agendamentos",
+        "http://localhost:8080/api/agendamentos",
         agendamentoToSend
       );
       console.log("Resposta do createAgendamento:", response.data);
@@ -225,10 +221,9 @@ function Recepcionist() {
         setIsModalOpen(false);
         setNewAgendamento({
           sala: "",
-          dataHoraSala: "",
-          dataHora: "2025-04-01 00:00:00.000 -0300",
+          dataHora: "",
           tipo: "",
-          status: "em espera",
+          status: "em_espera",
           observacoes: "",
           especialistaColaboradorId: null,
           pacienteId: null,
@@ -388,7 +383,7 @@ function Recepcionist() {
                   <p>
                     <strong>Data/Hora:</strong>{" "}
                     {format(
-                      new Date(agendamento.dataHoraSala),
+                      new Date(agendamento.dataHora),
                       "dd/MM/yyyy HH:mm",
                       { locale: ptBR }
                     )}
@@ -469,11 +464,11 @@ function Recepcionist() {
                   </label>
                   <input
                     type="datetime-local"
-                    value={newAgendamento.dataHoraSala}
+                    value={newAgendamento.dataHora}
                     onChange={(e) =>
                       setNewAgendamento({
                         ...newAgendamento,
-                        dataHoraSala: e.target.value,
+                        dataHora: e.target.value,
                       })
                     }
                     className="input input-bordered w-full"
@@ -511,8 +506,8 @@ function Recepcionist() {
                     }
                     className="select select-bordered w-full"
                   >
-                    <option value="em espera">Em Espera</option>
-                    <option value="em atendimento">Em Atendimento</option>
+                    <option value="em_espera">Em Espera</option>
+                    <option value="em_atendimento">Em Atendimento</option>
                     <option value="finalizado">Finalizado</option>
                   </select>
                 </div>
@@ -579,7 +574,7 @@ function Recepcionist() {
                     <span className="label-text">Recepcionista ID</span>
                   </label>
                   <input
-                    type="number"
+                    type ="number"
                     value={newAgendamento.recepcionistaColaboradorId || ""}
                     onChange={(e) =>
                       setNewAgendamento({
