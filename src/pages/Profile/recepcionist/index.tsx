@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
@@ -61,7 +61,7 @@ function Recepcionist() {
   const addpatient = "add-patient.png";
   const bloco = "memo-pencil-svgrepo-com.svg";
   const addconvenio = "add-convenio.png";
-  const config = "config.png";
+  // const config = "config.png";
 
   const pageProfile = "recepcionist";
 
