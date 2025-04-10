@@ -170,7 +170,9 @@ function Recepcionist() {
   const fetchCalendarEvents = async () => {
     try {
       console.log("Buscando todos os agendamentos para o calendário...");
-      const response = await axios.get("http://localhost:8080/api/agendamentos");
+      const response = await axios.get(
+        "http://localhost:8080/api/agendamentos"
+      );
       console.log("Resposta do fetchCalendarEvents:", response.data);
       const events = response.data
         .map((agendamento: Agendamento) => {
@@ -361,7 +363,7 @@ function Recepcionist() {
         <br />
       </div>
 
-      <div className="mt-2 flex flex-1 gap-4">
+      <div className="mt-2 flex flex-1 gap-4 ">
         <div className="w-1/3 bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-4">Agendamentos</h2>
           <button
@@ -371,29 +373,33 @@ function Recepcionist() {
             Adicionar Agendamento
           </button>
           {agendamentos.length > 0 ? (
-            <ul className="space-y-2">
-              {agendamentos.map((agendamento) => (
-                <li key={agendamento.pk} className="p-2 rounded bg-base-200">
-                  <p>
-                    <strong>Tipo:</strong> {agendamento.tipo}
-                  </p>
-                  <p>
-                    <strong>Sala:</strong> {agendamento.sala}
-                  </p>
-                  <p>
-                    <strong>Data/Hora:</strong>{" "}
-                    {format(
-                      new Date(agendamento.dataHora),
-                      "dd/MM/yyyy HH:mm",
-                      { locale: ptBR }
-                    )}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {agendamento.status}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <div className="max-h-[600px] overflow-y-auto">
+              {" "}
+              {/* Added fixed height and scroll */}
+              <ul className="space-y-2">
+                {agendamentos.map((agendamento) => (
+                  <li key={agendamento.pk} className="p-2 rounded bg-base-200">
+                    <p>
+                      <strong>Tipo:</strong> {agendamento.tipo}
+                    </p>
+                    <p>
+                      <strong>Sala:</strong> {agendamento.sala}
+                    </p>
+                    <p>
+                      <strong>Data/Hora:</strong>{" "}
+                      {format(
+                        new Date(agendamento.dataHora),
+                        "dd/MM/yyyy HH:mm",
+                        { locale: ptBR }
+                      )}
+                    </p>
+                    <p>
+                      <strong>Status:</strong> {agendamento.status}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p>Nenhum agendamento encontrado para esta unidade.</p>
           )}
@@ -574,7 +580,7 @@ function Recepcionist() {
                     <span className="label-text">Recepcionista ID</span>
                   </label>
                   <input
-                    type ="number"
+                    type="number"
                     value={newAgendamento.recepcionistaColaboradorId || ""}
                     onChange={(e) =>
                       setNewAgendamento({
